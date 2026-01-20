@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Đào Coin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 1em;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .stat-unit {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        
+
+        .mines-container {
+            background: red;
+            padding: 25px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mines-horizontal {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .mine-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 15px;
+            min-width: 150px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mine-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .mine-card.unlocked {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+        }
+
+        .mine-card.locked {
+            border-color: #dc3545;
+            background: #f8d7da;
+            opacity: 0.7;
+        }
+
+        .mine-avatar-small {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.5em;
+            color: white;
+            font-weight: bold;
+        }
+
+        .mine-name-small {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .mine-status-small {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .projections-section {
+            background: yellow;
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+           
+        }
+
+        .projections-horizontal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .projection-time {
+            font-weight: bold;
+            color: #333;
+            font-size: 0.85em;
+        }
+
+        .projection-amount {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1em;
+        }
+
+        .workers-horizontal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-top: 20px;
+        }
+
+        .worker-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .worker-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 12px;
+            min-width: 140px;
+            text-align: center;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .worker-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .worker-box.owned {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #5a67d8;
+            color: white;
+        }
+
+        .worker-box.maxed {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-color: #1e7e34;
+            color: white;
+        }
+
+        .worker-avatar-box {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 1em;
+            color: white;
+        }
+
+        .worker-box.owned .worker-avatar-box {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .worker-box.maxed .worker-avatar-box {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .worker-name-box {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 0.85em;
+        }
+
+        .worker-box.owned .worker-name-box,
+        .worker-box.maxed .worker-name-box {
+            color: white;
+        }
+
+        .worker-speed-box {
+            font-size: 0.75em;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .worker-box.owned .worker-speed-box,
+        .worker-box.maxed .worker-speed-box {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .price-tag-box {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .buy-button-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .buy-button-box:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        .buy-button-box:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .worker-count {
+            font-size: 0.7em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .worker-box.owned .worker-count,
+        .worker-box.maxed .worker-count {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .coin-display {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .coin-amount {
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .insufficient-coins {
+            background: #dc3545;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛏️ Mô Phỏng Đào Coin</h1>
+            <p>Xây dựng đội ngũ thợ đào và tối ưu hóa tốc độ khai thác!</p>
+        </div>
+
+        <div class="coin-display">
+            <div>💰 Số Coin Hiện Tại</div>
+            <div class="coin-amount" id="current-coins">1000</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Cấp Độ Hiện Tại</h3>
+                <div class="stat-value" id="current-level">1</div>
+                <div class="stat-unit">Level</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tổng Thợ Đào</h3>
+                <div class="stat-value" id="total-workers">0</div>
+                <div class="stat-unit">Workers</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tốc Độ Đào</h3>
+                <div class="stat-value" id="mining-speed">0.0000</div>
+                <div class="stat-unit">Coin/giờ</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tổng Coin Đã Đào</h3>
+                <div class="stat-value" id="total-mined">0.0000</div>
+                <div class="stat-unit">Coins</div>
+            </div>
+            <div class="stat-card">
+                <h3>Tổng Chi Tiêu</h3>
+                <div class="stat-value" id="total-spent">0</div>
+                <div class="stat-unit">Coins</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="left-column">
+                <div class="projections-section">
+                    <h2 class="section-title">📊 Dự Kiến Khai Thác</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="projection-time">1 giờ:</span>
+                            <span class="projection-amount" id="projection-1h">0 coin</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="projection-time">12 giờ:</span>
+                            <span class="projection-amount" id="projection-12h">0 coin</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="projection-time">1 ngày:</span>
+                            <span class="projection-amount" id="projection-1d">0 coin</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="projection-time">1 tuần:</span>
+                            <span class="projection-amount" id="projection-1w">0 coin</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="projection-time">1 tháng:</span>
+                            <span class="projection-amount" id="projection-1m">0 coin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mines-container">
+                    <h2 class="section-title">⛏️ Hầm Mỏ</h2>
+                    <div class="mines-horizontal" id="mines-list"></div>
+                    
+                    <h3 class="section-title" style="font-size: 1.2em; margin-top: 30px;">👷 Thợ Đào</h3>
+                    <div class="workers-horizontal" id="workers-all-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CoinMiningSimulator {
+            constructor() {
+                this.currentCoins = 1000; // Free 1000 coins ban đầu
+                this.totalSpent = 0;
+                this.totalMined = 0;
+                this.startTime = Date.now();
+                
+                // Giá thợ đào cho mỗi cấp độ
+                this.workerPrices = [10, 20, 50, 75, 100, 150, 200, 300, 500, 1000];
+                
+                this.mines = [
+                    {
+                        id: 1,
+                        name: 'Hầm Than',
+                        avatar: '⚫',
+                        color: '#495057',
+                        unlocked: true,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: null
+                    },
+                    {
+                        id: 2,
+                        name: 'Hầm Vàng',
+                        avatar: '🟡',
+                        color: '#ffc107',
+                        unlocked: false,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: { type: 'workers', mine: 1, count: 120 }
+                    },
+                    {
+                        id: 3,
+                        name: 'Hầm Kim Cương',
+                        avatar: '💎',
+                        color: '#17a2b8',
+                        unlocked: false,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: { type: 'workers', mine: 2, count: 360 }
+                    },
+                    {
+                        id: 4,
+                        name: 'Hầm Ruby',
+                        avatar: '🔴',
+                        color: '#dc3545',
+                        unlocked: false,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: { type: 'workers', mine: 3, count: 480 }
+                    },
+                    {
+                        id: 5,
+                        name: 'Hầm Emerald',
+                        avatar: '🟢',
+                        color: '#28a745',
+                        unlocked: false,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: { type: 'workers', mine: 4, count: 600 }
+                    },
+                    {
+                        id: 6,
+                        name: 'Hầm Lengend',
+                        avatar: '🌟',
+                        color: '#6f42c1',
+                        unlocked: false,
+                        workers: [],
+                        maxWorkers: 10,
+                        requirement: { type: 'workers', mine: 5, count: 1000 }
+                    }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.updateDisplay();
+                this.renderMines();
+                this.renderAllWorkers();
+                this.startMining();
+            }
+
+            getWorkerPrice(level) {
+                return this.workerPrices[level - 1] || 1000;
+            }
+
+            getLevelSpeed(level) {
+                // Tốc độ đào cấp 1: 0.005 coin/giờ, các cấp sau tăng 5%
+                const baseSpeed = 0.005;
+                if (level === 1) {
+                    return baseSpeed;
+                }
+                return baseSpeed * Math.pow(1.05, level - 1);
+            }
+
+            getCurrentSpeed() {
+                let totalSpeed = 0;
+                this.mines.forEach(mine => {
+                    if (mine.unlocked) {
+                        mine.workers.forEach(worker => {
+                            totalSpeed += worker.speed;
+                        });
+                    }
+                });
+                return totalSpeed;
+            }
+
+            buyWorker(mineId, workerLevel) {
+                const mine = this.mines.find(m => m.id === mineId);
+                if (!mine || !mine.unlocked) return;
+                
+                const price = this.getWorkerPrice(workerLevel);
+                const workersAtLevel = mine.workers.filter(w => w.level === workerLevel).length;
+                
+                // Kiểm tra số lần mua ở cấp độ này (tối đa 10 lần)
+                if (workersAtLevel >= 10) {
+                    this.showInsufficientCoins(`Đã mua tối đa 10 thợ đào cấp ${workerLevel} ở ${mine.name}!`);
+                    return;
+                }
+                
+                if (this.currentCoins < price) {
+                    this.showInsufficientCoins(`Cần ${price} coin để mua thợ đào cấp ${workerLevel}!`);
+                    return;
+                }
+                
+                // Trừ coin và cập nhật tổng chi tiêu
+                this.currentCoins -= price;
+                this.totalSpent += price;
+                
+                const speed = this.getLevelSpeed(workerLevel);
+                
+                mine.workers.push({
+                    id: mine.workers.length + 1,
+                    level: workerLevel,
+                    speed: speed,
+                    name: `Thợ đào cấp ${workerLevel}`
+                });
+                
+                this.animateSpeedIncrease();
+                this.checkMineUnlocks();
+                this.updateDisplay();
+                this.renderMines();
+                this.renderAllWorkers();
+            }
+
+            checkMineUnlocks() {
+                let hasNewUnlock = false;
+                
+                this.mines.forEach((mine, index) => {
+                    if (!mine.unlocked && mine.requirement) {
+                        const prevMine = this.mines.find(m => m.id === mine.requirement.mine);
+                        if (prevMine && prevMine.workers.length >= mine.requirement.count) {
+                            mine.unlocked = true;
+                            hasNewUnlock = true;
+                            alert(`🎉 Chúc mừng! ${mine.name} đã được mở khóa!`);
+                        }
+                    }
+                });
+                
+                return hasNewUnlock;
+            }
+
+            showInsufficientCoins(message) {
+                // Hiển thị thông báo thay vì alert
+                const existingMsg = document.querySelector('.insufficient-coins');
+                if (existingMsg) existingMsg.remove();
+                
+                const msg = document.createElement('div');
+                msg.className = 'insufficient-coins';
+                msg.textContent = '❌ ' + message;
+                msg.style.position = 'fixed';
+                msg.style.top = '20px';
+                msg.style.right = '20px';
+                msg.style.zIndex = '1000';
+                document.body.appendChild(msg);
+                
+                setTimeout(() => {
+                    msg.remove();
+                }, 3000);
+            }
+
+            animateSpeedIncrease() {
+                const currentRateElement = document.getElementById('current-rate');
+                if (currentRateElement) {
+                    currentRateElement.classList.add('pulse');
+                    setTimeout(() => {
+                        currentRateElement.classList.remove('pulse');
+                    }, 500);
+                }
+            }
+
+            renderMines() {
+                const minesList = document.getElementById('mines-list');
+                minesList.innerHTML = '';
+
+                this.mines.forEach(mine => {
+                    const isLocked = !mine.unlocked;
+                    const totalWorkers = mine.workers.length;
+                    
+                    const mineCard = document.createElement('div');
+                    mineCard.className = `mine-card ${isLocked ? 'locked' : 'unlocked'}`;
+                    
+                    mineCard.innerHTML = `
+                        <div class="mine-avatar-small" style="background: ${isLocked ? '#dc3545' : mine.color}">
+                            ${mine.avatar}
+                        </div>
+                        <div class="mine-name-small">${mine.name}</div>
+                        <div class="mine-status-small">
+                            ${isLocked ? '🔒 Đã khóa' : `✅ Đã mở khóa (${totalWorkers} thợ)`}
+                        </div>
+                    `;
+                    
+                    minesList.appendChild(mineCard);
+                });
+            }
+
+            renderAllWorkers() {
+                const workersList = document.getElementById('workers-all-list');
+                workersList.innerHTML = '';
+                
+                // Hàng 1: thợ cấp 1-5
+                const workerRow1 = document.createElement('div');
+                workerRow1.className = 'worker-row';
+                
+                for (let level = 1; level <= 5; level++) {
+                    const price = this.getWorkerPrice(level);
+                    const speed = this.getLevelSpeed(level);
+                    let totalWorkersAtLevel = 0;
+                    let isMaxed = false;
+                    
+                    // Đếm tổng số thợ ở cấp độ này từ tất cả các hầm
+                    this.mines.forEach(mine => {
+                        if (mine.unlocked) {
+                            const workersAtLevel = mine.workers.filter(w => w.level === level).length;
+                            totalWorkersAtLevel += workersAtLevel;
+                        }
+                    });
+                    
+                    isMaxed = totalWorkersAtLevel >= 10;
+                    const canAfford = this.currentCoins >= price;
+                    
+                    const workerBox = document.createElement('div');
+                    workerBox.className = `worker-box ${isMaxed ? 'maxed' : (totalWorkersAtLevel > 0 ? 'owned' : '')}`;
+                    
+                    workerBox.innerHTML = `
+                        <div class="worker-avatar-box">
+                            ${isMaxed ? '✅' : '👷'}
+                        </div>
+                        <div class="worker-name-box">Thợ Cấp ${level}</div>
+                        <div class="worker-speed-box">${this.trimZeros(speed)} coin/giờ</div>
+                        <div class="price-tag-box">${price} coin</div>
+                        ${isMaxed ? 
+                            '<div style="color: white; font-weight: bold; font-size: 0.8em;">Đã mua tối đa</div>' : 
+                            `<button class="buy-button-box" 
+                                        onclick="game.buyWorkerFromAnyMine(${level})"
+                                        ${!canAfford ? 'disabled' : ''}>
+                                    ${canAfford ? 'Mua' : 'Hết coin'}
+                                </button>`
+                            }
+                            <div class="worker-count">Đã mua: ${totalWorkersAtLevel}/10</div>
+                        `;
+                    
+                    workerRow1.appendChild(workerBox);
+                }
+                
+                // Hàng 2: thợ cấp 6-10
+                const workerRow2 = document.createElement('div');
+                workerRow2.className = 'worker-row';
+                
+                for (let level = 6; level <= 10; level++) {
+                    const price = this.getWorkerPrice(level);
+                    const speed = this.getLevelSpeed(level);
+                    let totalWorkersAtLevel = 0;
+                    let isMaxed = false;
+                    
+                    // Đếm tổng số thợ ở cấp độ này từ tất cả các hầm
+                    this.mines.forEach(mine => {
+                        if (mine.unlocked) {
+                            const workersAtLevel = mine.workers.filter(w => w.level === level).length;
+                            totalWorkersAtLevel += workersAtLevel;
+                        }
+                    });
+                    
+                    isMaxed = totalWorkersAtLevel >= 10;
+                    const canAfford = this.currentCoins >= price;
+                    
+                    const workerBox = document.createElement('div');
+                    workerBox.className = `worker-box ${isMaxed ? 'maxed' : (totalWorkersAtLevel > 0 ? 'owned' : '')}`;
+                    
+                    workerBox.innerHTML = `
+                        <div class="worker-avatar-box">
+                            ${isMaxed ? '✅' : '👷'}
+                        </div>
+                        <div class="worker-name-box">Thợ Cấp ${level}</div>
+                        <div class="worker-speed-box">${this.trimZeros(speed)} coin/giờ</div>
+                        <div class="price-tag-box">${price} coin</div>
+                        ${isMaxed ? 
+                            '<div style="color: white; font-weight: bold; font-size: 0.8em;">Đã mua tối đa</div>' : 
+                            `<button class="buy-button-box" 
+                                        onclick="game.buyWorkerFromAnyMine(${level})"
+                                        ${!canAfford ? 'disabled' : ''}>
+                                    ${canAfford ? 'Mua' : 'Hết coin'}
+                                </button>`
+                            }
+                            <div class="worker-count">Đã mua: ${totalWorkersAtLevel}/10</div>
+                        `;
+                    
+                    workerRow2.appendChild(workerBox);
+                }
+                
+                workersList.appendChild(workerRow1);
+                workersList.appendChild(workerRow2);
+            }
+
+            buyWorkerFromAnyMine(workerLevel) {
+                // Chỉ mua 1 thợ mỗi lần bấm
+                const price = this.getWorkerPrice(workerLevel);
+                
+                if (this.currentCoins < price) {
+                    this.showInsufficientCoins(`Cần ${price} coin để mua thợ đào cấp ${workerLevel}!`);
+                    return;
+                }
+                
+                // Tìm hầm đầu tiên đã mở khóa còn chỗ để mua thợ
+                for (let mine of this.mines) {
+                    if (mine.unlocked) {
+                        const workersAtLevel = mine.workers.filter(w => w.level === workerLevel).length;
+                        if (workersAtLevel < 10) {
+                            this.buyWorker(mine.id, workerLevel);
+                            return;
+                        }
+                    }
+                }
+                
+                this.showInsufficientCoins('Tất cả các hầm đã có đủ thợ ở cấp độ này!');
+            }
+
+            getTotalWorkers() {
+                let total = 0;
+                this.mines.forEach(mine => {
+                    if (mine.unlocked) {
+                        total += mine.workers.length;
+                    }
+                });
+                return total;
+            }
+
+            updateDisplay() {
+                const currentSpeed = this.getCurrentSpeed();
+                
+                // Cập nhật các element có tồn tại
+                const currentLevelEl = document.getElementById('current-level');
+                if (currentLevelEl) currentLevelEl.textContent = '1';
+                
+                const totalWorkersEl = document.getElementById('total-workers');
+                if (totalWorkersEl) totalWorkersEl.textContent = this.getTotalWorkers();
+                
+                const miningSpeedEl = document.getElementById('mining-speed');
+                if (miningSpeedEl) miningSpeedEl.textContent = this.trimZeros(currentSpeed);
+                
+                const totalMinedEl = document.getElementById('total-mined');
+                if (totalMinedEl) totalMinedEl.textContent = this.trimZeros(this.totalMined);
+                
+                const currentCoinsEl = document.getElementById('current-coins');
+                if (currentCoinsEl) currentCoinsEl.textContent = this.currentCoins;
+                
+                const totalSpentEl = document.getElementById('total-spent');
+                if (totalSpentEl) totalSpentEl.textContent = this.totalSpent;
+                
+                // Cập nhật dự kiến
+                this.updateProjections(currentSpeed);
+            }
+
+            trimZeros(num) {
+                const str = num.toString();
+                if (str.includes('.')) {
+                    // Chỉ giữ tối đa 8 số sau dấu phẩy
+                    const parts = str.split('.');
+                    let decimal = parts[1] || '';
+                    if (decimal.length > 8) {
+                        decimal = decimal.substring(0, 8);
+                    }
+                    decimal = decimal.replace(/0+$/, '');
+                    if (decimal === '') {
+                        return parts[0];
+                    }
+                    return parts[0] + '.' + decimal;
+                }
+                return str;
+            }
+
+            updateProjections(speed) {
+                const projection1h = document.getElementById('projection-1h');
+                if (projection1h) projection1h.textContent = this.trimZeros(speed * 1) + ' coin';
+                
+                const projection12h = document.getElementById('projection-12h');
+                if (projection12h) projection12h.textContent = this.trimZeros(speed * 12) + ' coin';
+                
+                const projection1d = document.getElementById('projection-1d');
+                if (projection1d) projection1d.textContent = this.trimZeros(speed * 24) + ' coin';
+                
+                const projection1w = document.getElementById('projection-1w');
+                if (projection1w) projection1w.textContent = this.trimZeros(speed * 168) + ' coin';
+                
+                const projection1m = document.getElementById('projection-1m');
+                if (projection1m) projection1m.textContent = this.trimZeros(speed * 720) + ' coin';
+            }
+
+            startMining() {
+                let lastDisplayedValue = '0.00000000';
+                
+                setInterval(() => {
+                    const speed = this.getCurrentSpeed();
+                    const elapsedHours = (Date.now() - this.startTime) / (1000 * 60 * 60);
+                    this.totalMined = speed * elapsedHours;
+                    
+                    // Cộng coin đã đào vào số coin hiện tại
+                    const minedCoins = Math.floor(this.totalMined);
+                    if (minedCoins > this.totalSpent) {
+                        this.currentCoins = 1000 + minedCoins - this.totalSpent;
+                    }
+                    
+                    this.updateDisplay();
+                }, 50); // Cập nhật mỗi 50ms cho hiệu ứng mượt hơn
+            }
+        }
+
+        // Khởi tạo game
+        const game = new CoinMiningSimulator();
+    </script>
+</body>
+</html>
